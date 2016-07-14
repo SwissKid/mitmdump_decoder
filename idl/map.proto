@@ -64,7 +64,7 @@ message PokemonSummaryFortProto {
 message NearbyPokemonProto {
 	int32 PokedexNumber = 1;
 	float DistanceMeters = 2;
-	int32 EncounterId = 3;
+	double EncounterId = 3;
 }
 
 message WildPokemonProto {

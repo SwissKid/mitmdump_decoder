@@ -117,6 +117,7 @@ def response(context, flow):
         mor = GetMapObjectsOutProto()
         mor.ParseFromString(value)
         print("GET_MAP_OBJECTS %i cells" % len(mor.cells))
+        print(mor)
         features = []
 
         for cell in mor.cells:
@@ -159,6 +160,9 @@ def response(context, flow):
             features.append(f)
 
           for poke in cell.NearbyPokemon:
+            d = poke.DistanceMeters/1000
+            print(d)
+            print("EncounterID %s" % poke.EncounterId)
             gps = request_location[env.response_id]
             if poke.EncounterId in pokeLocation:
               add=True
@@ -166,15 +170,23 @@ def response(context, flow):
                 if gps[0] == loc[0] and gps[1] == loc[1]:
                   add=False
               if add:
-                pokeLocation[poke.EncounterId].append((gps[0], gps[1], poke.DistanceMeters/1000))
+                print("Gonna add %s" % d)
+                pokeLocation[poke.EncounterId].append((gps[0], gps[1], d))
             else:
-              pokeLocation[poke.EncounterId] = [(gps[0], gps[1], poke.DistanceMeters/1000)]
+              print("Gonna add %s" % d)
+              pokeLocation[poke.EncounterId] = [(gps[0], gps[1], d)]
             if len(pokeLocation[poke.EncounterId]) >= 3:
-              lat, lon = triangulate(pokeLocation[poke.EncounterId][0],pokeLocation[poke.EncounterId][1],pokeLocation[poke.EncounterId][2])
-              if not math.isnan(lat) and not math.isnan(lon) :
-                p = Point((lon, lat))
-                f = Feature(geometry=p, id=len(features), properties={"title": "nearby pokemon", "marker-color": "FFFFFF", "marker-symbol": "dog-park"})
-                features.append(f)
+              try:
+                lat, lon = triangulate(pokeLocation[poke.EncounterId][0],pokeLocation[poke.EncounterId][1],pokeLocation[poke.EncounterId][2])
+                if not math.isnan(lat) and not math.isnan(lon) :
+                  p = Point((lon, lat))
+                  f = Feature(geometry=p, id=len(features), properties={"title": "nearby pokemon %s" % poke.PokedexNumber, "marker-color": "FFFFFF", "marker-symbol": "dog-park"})
+                  features.append(f)
+              except:
+                print("Failed to handle triangulation.")
+                print(pokeLocation[poke.EncounterId])
+            print("%s:" % poke.PokedexNumber)
+            print(pokeLocation[poke.EncounterId])
 
 
         fc = FeatureCollection(features)
