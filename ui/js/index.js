@@ -6,7 +6,7 @@ L.tileLayer.provider('OpenStreetMap.Mapnik', {retina: true}).addTo(map);
 
 var filters = document.getElementById('filters');
 filters.onclick = function() {
-  gmo.update();
+  //gmo.update();
   player.update();
 };
 
@@ -22,10 +22,10 @@ var autoloadOptions = {
 }
 
 var player = L.realtime({url: 'player.json', type: 'json'}, autoloadOptions).addTo(map);
-var gmo = L.realtime({url: 'get_map_objects.json', type: 'json'}, autoloadOptions).addTo(map);
+var gmo = L.geoJson({"geometry": {"coordinates": [-118.72285251935946, 34.28492486031071], "type": "Point"}, "id": 0, "properties": {"id": 0, "marker-color": "000000", "marker-symbol": "monument", "title": "Decimated spawn", "type": "decimatedspawn"}, "type": "Feature"}, autoloadOptions).addTo(map);
 
 var loaded = false;
-gmo.on('update', function(updateEvent) {
+player.on('update', function(updateEvent) {
   if(!loaded){ // && updateEvent.features.length > 0) {
     loaded = true;
     //Set the view after the first load
@@ -114,3 +114,4 @@ var pokemonIcon = L.icon({
     iconAnchor:   [16, 48], // point of the icon which will correspond to marker's location
     popupAnchor:  [-3, -58] // point from which the popup should open relative to the iconAnchor
 });
+var gj = L.uGeoJSONLayer({ endpoint:"http://house.veryoblivio.us:8080/api/mapobjects/bbox", debug: true, usebbox: true, instead: gmo}).addTo(map);
