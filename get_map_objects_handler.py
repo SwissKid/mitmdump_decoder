@@ -174,6 +174,8 @@ class GetMapObjectsHandler:
   def dumpToMap(self, data):
     if bearer == "":
       return
+    if len(data) == 0:
+      return
     headers = {"Authorization" : "Bearer %s" % bearer}
     r = requests.post("%s/api/push/mapobject/bulk" % endpoint, json = data, headers = headers)
 
